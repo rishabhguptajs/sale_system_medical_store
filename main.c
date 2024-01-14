@@ -1,398 +1,415 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
-
-struct Admin {
-    char name[20];
-    char username[20];
-    char password[20];
-    char contactInfo[50];
-    char permissions[100];
-};
-
-
-struct Staff {
-    int staffID;
-    char name[50];
-    char username[20];
-    char password[20];
-    char contactInfo[50];
-    char permissions[100];
-    struct Staff *next;
-};
-
-struct Customer {
-    int customerID;
-    char name[50];
-    char username[20];
-    char password[20];
-    char contactInfo[50];
-    struct Customer *next;};
 
 struct Medicine {
-    int medicineID;
-    char name[50];
-    char manufacturer[50];
-    int quantity;
-    float price;
-    struct Medicine *next;
-};
+    int id, price, quantity;
+    char medicneName[100], Company[100], Mfg_Date[11], Exp_Date[11], info[5000];
+} m[100];
 
-struct Admin admin = {
-        .name = "Rishabh",
-        .username = "rishabhguptajs",
-        .password = "RG@&05",
-        .contactInfo = "9889069688",
-        .permissions = "Full Control"
-};
-
-void addStaff(struct Staff **staffList, int *staffCount);
-void addCustomer(struct Customer **customerList, int *customerCount);
-void displayAdmins(const struct Admin *adminList);
-void displayStaff(const struct Staff *staffList);
-void displayCustomers(const struct Customer *customerList);
-int validateAdminLogin(struct Admin *admin, const char *enteredUsername, const char *enteredPassword);
-void addAdmin(struct Admin **adminList, int *adminCount, const char *name, const char *username, const char *password, const char *contactInfo);
-void manageStaff(struct Staff **staffList, int *staffCount);
-void manageCustomers(struct Customer **customerList, int *customerCount);
-void manageInventory(struct Medicine **medicineList, int *medicineCount);
-void addMedicine(struct Medicine **medicineList, int *medicineCount);
-void deleteMedicine(struct Medicine **medicineList);
+void PurchaseMedicine(int number);
+void EnterInfoAboutMedicine(int number);
+void StockOfMedicine(int number);
+void KnowInfoAboutMedicine(int number);
+void AddMedicineinStore(int number, struct Medicine m[]);
+void DeleteMedicineStore(int number);
+void ChangeMedicineDetails(int number);
 
 int main() {
-    struct Admin *adminList = NULL;
-    struct Staff *staffList = NULL;
-    struct Customer *customerList = NULL;
-    struct Medicine *medicineList = NULL;
-    int loggedInAsAdmin = 0;
-    int staffCount = 0;
-    int customerCount = 0;
-    int medicineCount = 0;
+    int i, choice, number = 0, c;
 
-    int choice;
+    for (i = 0; i < 100; i++) {
+        m[i].id = 0;
+        m[i].price = 0;
+        m[i].quantity = 0;
+        strcpy(m[i].Mfg_Date, "");
+        strcpy(m[i].Exp_Date, "");
+        strcpy(m[i].medicneName, "");
+        strcpy(m[i].Company, "");
+        strcpy(m[i].info, "");
+    }
 
-    printf("Welcome to the Sales System for a Medical Store\n");
+    m[0].id = 1;
+    m[0].price = 120;
+    m[0].quantity = 30;
+    strcpy(m[0].Mfg_Date, "23-04-2016");
+    strcpy(m[0].Exp_Date, "24-04-2020");
+    strcpy(m[0].medicneName, "Paracetamol");
+    strcpy(m[0].Company, "ABCD");
+    strcpy(m[0].info, "Good Medicine for Fever");
 
-    while (1) {
-        printf("\nMain Menu:\n");
-        if (!loggedInAsAdmin) {
-            printf("-> Login as Admin\n");
-        } else {
-            printf("-> Logout\n");
-            printf("-> Access Admin Panel\n");
-        }
-        printf("-> Login as Staff\n");
-        printf("-> Login as Customer\n");
-        printf("-> Exit - Enter 6 to exit.\n");
-        printf("Enter your choice: ");
+    do {
+        printf("\nEnter\n1 - Purchase Medicine\n2 - Enter Information about a Medicine\n3 - Stock of Medicine in Store\n");
+        printf("4 - Medicine Information\n5 - Add Medicine\n6 - Delete a Medicine\n7 - Change Quantity of Medicine\n");
         scanf("%d", &choice);
+
         switch (choice) {
             case 1:
-                if (!loggedInAsAdmin) {
-                    char enteredUsername[20];
-                    char enteredPassword[20];
-                    printf("Enter username: ");
-                    scanf("%s", enteredUsername);
-                    printf("Enter password: ");
-                    scanf("%s", enteredPassword);
-
-                    if (validateAdminLogin(&admin, enteredUsername, enteredPassword)) {
-                        printf("Admin logged in successfully.\n");
-                        loggedInAsAdmin = 1;
-                    } else {
-                        printf("Invalid username or password.\n");
-                    }
-                } else {
-                    loggedInAsAdmin = 0;
-                    printf("Admin logged out.\n");
-                }
+                PurchaseMedicine(number + 1);
                 break;
             case 2:
-                if (loggedInAsAdmin) {
-                    int adminChoice;
-                    printf("Admin Panel\n");
-                    printf("1. Manage Staff\n");
-                    printf("2. Manage Customers\n");
-                    printf("3. Manage Inventory\n");
-                    printf("4. Logout\n");
-                    printf("Enter your choice: ");
-                    scanf("%d", &adminChoice);
-
-                    switch (adminChoice) {
-                        case 1:
-                            manageStaff(&staffList, &staffCount);
-                            break;
-                        case 2:
-                            manageCustomers(&customerList, &customerCount);
-                            break;
-                        case 3:
-                            manageInventory(&medicineList, &medicineCount);
-                            break;
-                        case 4:
-                            // Logout
-                            loggedInAsAdmin = 0;
-                            printf("Admin logged out.\n");
-                            break;
-                        default:
-                            printf("Invalid choice. Please select a valid option.\n");
-                    }
-                } else {
-                    printf("You must be logged in as an admin to access the admin panel.\n");
-                }
+                EnterInfoAboutMedicine(number + 1);
                 break;
             case 3:
-                if (loggedInAsAdmin) {
-                    manageStaff(&staffList, &staffCount);
-                } else {
-                    printf("You must be logged in as admin to manage staff.\n");
-                }
+                StockOfMedicine(number + 1);
                 break;
             case 4:
-                if (loggedInAsAdmin) {
-                    manageCustomers(&customerList, &customerCount);
-                } else {
-                    printf("You must be logged in as admin to manage customers.\n");
-                }
+                KnowInfoAboutMedicine(number + 1);
                 break;
             case 5:
-                if (loggedInAsAdmin) {
-                    manageInventory(&medicineList, &medicineCount);
-                } else {
-                    printf("You must be logged in as admin to manage inventory.\n");
-                }
+                ++number;
+                AddMedicineinStore(number, m);
                 break;
             case 6:
-                exit(0);
+                DeleteMedicineStore(number + 1);
+                break;
+            case 7:
+                ChangeMedicineDetails(number + 1);
                 break;
             default:
-                printf("Invalid choice. Please select a valid option.\n");
+                printf("Invalid choice. Please enter a valid option.\n");
+        }
+
+        printf("To Continue with other Options Enter 1 Else any other number\n");
+        scanf("%d", &c);
+    } while (c == 1);
+
+    return 0;
+}
+void PurchaseMedicine(int number)
+{
+    int id,check,i,quantity,flag=0;
+    char name[100];
+    printf("Enter 1 if you know ID else any other number to enter Name of Medicine\n");
+    fflush(stdin);
+    scanf("%d",&check);
+    if(check==1)
+    {
+        printf("Enter Id to purchase Medicine\n");
+        fflush(stdin);
+        scanf("%d",&id);
+        for(i=0;i<number;i++)
+        {
+            if(m[i].id==id)
+            {
+                flag=1;
+                int c;
+                printf("These are the details of Medicine\n");
+                printf("Name%s\nPrice=%d\nAvailable Quantity=%d\nCompany=%s\nMfg Date=%s\nExp Date=%s\n",m[i].medicneName,m[i].price,m[i].quantity,m[i].Company,m[i].Mfg_Date,m[i].Exp_Date);
+                if(strcmp(m[i].info,"")==0)
+                {
+                    printf("Medicine Review/Info=Not Available\n");
+                }
+                else
+                {
+                    printf("Medicine Review/Info=%s\n",m[i].info);
+                }
+                printf("Do you want to purchase %s \nIf Yes Enter 1 else any other number\n",m[i].medicneName);
+                fflush(stdin);
+                scanf("%d",&c);
+                if(c==1)
+                {
+                    printf("Enter Quantity to Purchase\n");
+                    scanf("%d",&quantity);
+                    if(m[i].quantity>quantity)
+                    {
+                        printf("Total Price to be paid=%d\n",quantity*m[i].price);
+                    }
+                    else{
+                        printf("Please Enter quantity below Available Quantity\n");
+                    }
+                }
+                break;
+            }
+        }
+        if(flag==0)
+        {
+            printf("Entered Id Not Found\n");
         }
     }
-
-    return 0;
+    else
+    {
+        printf("Enter Name to search and Purchase\n");
+        fflush(stdin);
+        gets(name);
+        for(i=0;i<number;i++)
+        {
+            if(strcmp(m[i].medicneName,name)==0)
+            {
+                flag=1;
+                int c;
+                printf("These are the details of Medicine\n");
+                printf("Name=%s\nPrice=%d\nAvailable Quantity=%d\nCompany=%s\nMfg Date=%s\nExp Date=%s\n",m[i].medicneName,m[i].price,m[i].quantity,m[i].Company,m[i].Mfg_Date,m[i].Exp_Date);
+                if(strcmp(m[i].info,"")==0)
+                {
+                    printf("Medicine Review/Info=Not Available\n");
+                }
+                else
+                {
+                    printf("Medicine Review/Info=%s\n",m[i].info);
+                }
+                printf("Do you want to purchase %s \nIf Yes Enter 1 else any other number\n",m[i].medicneName);
+                fflush(stdin);
+                scanf("%d",&c);
+                if(c==1)
+                {
+                    printf("Enter Quantity to Purchase\n");
+                    scanf("%d",&quantity);
+                    if(m[i].quantity>quantity)
+                    {
+                        printf("Total Price to be paid=%d\n",quantity*m[i].price);
+                    }
+                    else{
+                        printf("Please Enter quantity below Available Quantity\n");
+                    }
+                }
+                break;
+            }
+        }
+        if(flag==0)
+        {
+            printf("Entered Name Not Found\n");
+        }
+    }
 }
 
-void manageStaff(struct Staff **staffList, int *staffCount) {
-    int staffChoice;
-    printf("Manage Staff:\n");
-    printf("1. Add Staff\n");
-    printf("2. Display Staff\n");
-    printf("Enter your choice: ");
-    scanf("%d", &staffChoice);
+void EnterInfoAboutMedicine(int number)
+{
+    int i,flag=0,c;
+    char name[100],info[100];
+    printf("Enter Name of the medicine you want to Review or include Info\n");
+    fflush(stdin);
+    gets(name);
+    for(i=0;i<number;i++)
+    {
+        if(strcmp(m[i].medicneName,name)==0)
+        {
+            flag=1;
+            printf("These are the details of Medicine\n");
+            printf("Name=%s\nPrice=%d\nAvailable Quantity=%d\nCompany=%s\nMfg Date=%s\nExp Date=%s\n",m[i].medicneName,m[i].price,m[i].quantity,m[i].Company,m[i].Mfg_Date,m[i].Exp_Date);
+            if(strcmp(m[i].info,"")!=0)
+            {
+                printf("Review Already Available!\nIf you want to Add a Review Enter 1 else Any other number\n");
+                fflush(stdin);
+                scanf("%d",&c);
+            }
+            else
+            {
+                printf("Enter review(less than 100 Characters)\n");
+                fflush(stdin);
+                gets(m[i].info);
+            }
+            if(c==1)
+            {
+                printf("Enter review(less than 100 Characters)\n");
+                fflush(stdin);
+                gets(info);
+                strcat(m[i].info,"; ");
+                strcat(m[i].info,info);
+            }
 
-    switch (staffChoice) {
-        case 1:
-            addStaff(staffList, staffCount);
+        }
+    }
+    if(flag==0)
+    {
+        printf("Entered Name Not Found\n");
+    }
+}
+void KnowInfoAboutMedicine(int number){
+    int i,flag=0;
+    char name[100];
+    printf("Enter Name of the medicine you want to see Review and Info\n");
+    fflush(stdin);
+    gets(name);
+    for(i=0;i<number;i++)
+    {
+        if(strcmp(m[i].medicneName,name)==0)
+        {
+            flag=1;
+            printf("These are the details of Medicine\n");
+            printf("Name=%s\nPrice=%d\nAvailable Quantity=%d\nCompany=%s\nMfg Date=%s\nExp Date=%s\n",m[i].medicneName,m[i].price,m[i].quantity,m[i].Company,m[i].Mfg_Date,m[i].Exp_Date);
+            if(strcmp(m[i].info,"")!=0)
+            {
+                printf("Review or Info=%s\n",m[i].info);
+            }
+            else
+            {
+                printf("Review or Info=Not Available\n");
+            }
+        }
+    }
+    if(flag==0)
+    {
+        printf("Entered Name Not Found\n");
+    }
+}
+void StockOfMedicine(int number){
+    int i;
+    if(number!=0)
+    {
+        printf("All Available Items are\n");
+        for(i=0;i<number;i++)
+        {
+            if(m[i].id!=0){
+                printf("Id=%d\nName=%s\t\tPrice=%d\tAvailable Quantity=%d\nCompany=%s\t\tMfg Date=%s\tExp Date=%s\n",m[i].id,m[i].medicneName,m[i].price,m[i].quantity,m[i].Company,m[i].Mfg_Date,m[i].Exp_Date);
+                if(strcmp(m[i].info,"")!=0)
+                {
+                    printf("Review or Info=%s\n",m[i].info);
+                }
+                else
+                {
+                    printf("Review or Info=Not Available\n");
+                }
+            }
+        }
+    }
+    else{
+        printf("No Items or Medicines Available\n");
+    }
+}
+void AddMedicineinStore(int number,struct Medicine m[])
+{
+    char name[100];
+    printf("Enter Medicine Id\n");
+    scanf("%d",&(m[number].id));
+    fflush(stdin);
+    printf("Enter Medicine Name\n");
+    fflush(stdin);
+    gets(name);
+    strcpy(m[number].medicneName,name);
+    printf("Enter Company Name\n");
+    fflush(stdin);
+    gets(m[number].Company);
+    printf("Enter Manufactured Date\n");
+    fflush(stdin);
+    gets(m[number].Mfg_Date);
+    printf("Enter Expiry Date\n");
+    fflush(stdin);
+    gets(m[number].Exp_Date);
+    printf("Enter Quantity\n");
+    fflush(stdin);
+    scanf("%d",&(m[number].quantity));
+    printf("Enter Price\n");
+    fflush(stdin);
+    scanf("%d",&(m[number].price));
+    strcpy(m[number].info,"");
+    printf("Medicine with id %d Added Successfully\n",m[number].id);
+}
+
+void DeleteMedicineStore(int number)
+{
+    int id,i,flag=0,num;
+    printf("Enter Id to be deleted\n");
+    fflush(stdin);
+    scanf("%d",&id);
+    for(i=0;i<number;i++)
+    {
+        if(m[i].id==id)
+        {
+            flag=1;
+            m[i].id=0;
+            m[i].price=0;
+            m[i].quantity=0;
+            strcpy(m[i].medicneName,"");
+            strcpy(m[i].Company,"");
+            strcpy(m[i].Mfg_Date,"");
+            strcpy(m[i].Exp_Date,"");
+            strcpy(m[i].info,"");
+            num=i;
             break;
-        case 2:
-            displayStaff(*staffList);
+        }
+    }
+    if(flag==1)
+    {
+        printf("Medicine with %d is Deleted Successfully\n",id);
+    }
+}
+
+void ChangeMedicineDetails(int number)
+{
+    int id,quantity,choice,c,i;
+    printf("Enter id to change Details\n");
+    scanf("%d",&id);
+    for(i=0;i<number;i++)
+    {
+        if(m[i].id==id && m[i].id!=0)
+        {
+            do
+            {
+                printf("Enter\n1 - Change Quantity\n2 - Change Price\n3 - Change Name\n4 - Change Company\n5 - Change Manufaturing Date\n6 - Change Expiry Date\n7 - Change Info\nAny other number to exit");
+                scanf("%d",&choice);
+                if(choice==1)
+                {
+                    int quantity;
+                    printf("Enter Quantity to be changed\n");
+                    fflush(stdin);
+                    scanf("%d",&quantity);
+                    m[i].quantity=quantity;
+                    printf("Quantity changed Successfully\n");
+                }
+                if(choice==2)
+                {
+                    int price;
+                    printf("Enter Price to be changed\n");
+                    fflush(stdin);
+                    scanf("%d",&price);
+                    m[i].price=price;
+                    printf("Price changed Successfully\n");
+                }
+                if(choice==3)
+                {
+                    char name[100];
+                    printf("Enter Name to be changed\n");
+                    fflush(stdin);
+                    gets(name);
+                    strcpy(m[i].medicneName,name);
+                    printf("Medicine Name changed Successfully\n");
+                }
+                if(choice==4)
+                {
+                    char company[100];
+                    printf("Enter company to be changed\n");
+                    fflush(stdin);
+                    gets(company);
+                    strcpy(m[i].Company,company);
+                    printf("Company changed Successfully\n");
+                }
+                if(choice==5)
+                {
+                    char mfg[11];
+                    printf("Enter Manufacturing date to be changed\n");
+                    fflush(stdin);
+                    gets(mfg);
+                    strcpy(m[i].Mfg_Date,mfg);
+                    printf("Manufacturing Date changed Successfully\n");
+                }
+                if(choice==6)
+                {
+                    char exp[11];
+                    printf("Enter Expiry date to be changed\n");
+                    fflush(stdin);
+                    gets(exp);
+                    strcpy(m[i].Exp_Date,exp);
+                    printf("Expiry Date changed Successfully\n");
+                }
+                if(choice==7)
+                {
+                    char info[100];
+                    printf("Enter Info to be changed(Less than 100 Characters)\n");
+                    fflush(stdin);
+                    gets(info);
+                    strcpy(m[i].info,info);
+                    printf("Info changed Successfully\n");
+                }
+                if(choice<=0 && choice>7)
+                {
+                    printf("Enter valid Choice\n");
+                }
+                printf("Enter 1 to Change other Details Else any other number\n");
+                fflush(stdin);
+                scanf("%d",&c);
+            }while(c==1);
+
             break;
-        default:
-            printf("Invalid choice.\n");
+        }
     }
-}
-
-void manageCustomers(struct Customer **customerList, int *customerCount) {
-    int customerChoice;
-    printf("Manage Customers:\n");
-    printf("1. Add Customer\n");
-    printf("2. Display Customers\n");
-    printf("Enter your choice: ");
-    scanf("%d", &customerChoice);
-
-    switch (customerChoice) {
-        case 1:
-            addCustomer(customerList, customerCount);
-            break;
-        case 2:
-            displayCustomers(*customerList);
-            break;
-        default:
-            printf("Invalid choice.\n");
-    }
-}
-
-void manageInventory(struct Medicine **medicineList, int *medicineCount) {
-    int inventoryChoice;
-
-    printf("\nInventory Menu:\n");
-    printf("1. Add Medicine\n");
-    printf("2. Delete Medicine\n");
-    printf("3. Display Medicines\n");
-    printf("4. Go Back to Main Menu\n");
-
-    printf("Enter your choice: ");
-    scanf("%d", &inventoryChoice);
-
-    switch (inventoryChoice) {
-        case 1:
-            addMedicine(medicineList, medicineCount);
-            break;
-        case 2:
-            deleteMedicine(medicineList);
-            break;
-        case 3:
-            displayMedicines(*medicineList);
-            break;
-        case 4:
-            break;
-        default:
-            printf("Invalid choice. Please select a valid option.\n");
-    }
-}
-
-// existing code...
-
-void addStaff(struct Staff **staffList, int *staffCount) {
-    struct Staff *newStaff = (struct Staff *)malloc(sizeof(struct Staff));
-    if (newStaff == NULL) {
-        printf("Memory allocation failed for staff.\n");
-        return;
-    }
-
-    newStaff->staffID = ++(*staffCount);
-
-    printf("Username: ");
-    scanf(" %[^\n]", newStaff->username);
-
-    printf("Password: ");
-    scanf(" %[^\n]", newStaff->password);
-
-    printf("Contact Info: ");
-    scanf(" %[^\n]", newStaff->contactInfo);
-
-    printf("Permissions: ");
-    scanf(" %[^\n]", newStaff->permissions);
-
-    newStaff->next = *staffList;
-    *staffList = newStaff;
-
-    printf("Staff member added successfully.\n");
-}
-
-void addCustomer(struct Customer **customerList, int *customerCount) {
-    struct Customer *newCustomer = (struct Customer *)malloc(sizeof(struct Customer));
-    if (newCustomer == NULL) {
-        printf("Memory allocation failed for customer.\n");
-        return;
-    }
-
-    newCustomer->customerID = ++(*customerCount);
-
-    printf("Enter customer details:\n");
-    printf("Name: ");
-    scanf("%s", newCustomer->name);
-    printf("Username: ");
-    scanf("%s", newCustomer->username);
-    printf("Password: ");
-    scanf("%s", newCustomer->password);
-    printf("Contact Info: ");
-    scanf("%s", newCustomer->contactInfo);
-
-    newCustomer->next = *customerList;
-    *customerList = newCustomer;
-
-    printf("Customer added successfully.\n");
-}
-
-void displayStaff(const struct Staff *staffList) {
-    printf("\nStaff Members:\n");
-    while (staffList != NULL) {
-        printf("Staff ID: %d\n", staffList->staffID);
-        printf("Name: %s\n", staffList->name);
-        printf("Username: %s\n", staffList->username);
-        printf("Contact Info: %s\n", staffList->contactInfo);
-        printf("Permissions: %s\n", staffList->permissions);
-        printf("\n");
-        staffList = staffList->next;
-    }
-}
-
-void displayCustomers(const struct Customer *customerList) {
-    printf("\nCustomers:\n");
-    while (customerList != NULL) {
-        printf("Customer ID: %d\n", customerList->customerID);
-        printf("Name: %s\n", customerList->name);
-        printf("Username: %s\n", customerList->username);
-        printf("Contact Info: %s\n", customerList->contactInfo);
-        printf("\n");
-        customerList = customerList->next;
-    }
-}
-
-void addMedicine(struct Medicine **medicineList, int *medicineCount) {
-    struct Medicine *newMedicine = (struct Medicine *)malloc(sizeof(struct Medicine));
-    if (newMedicine == NULL) {
-        printf("Memory allocation failed for the new medicine.\n");
-        return;
-    }
-
-    newMedicine->medicineID = ++(*medicineCount);
-
-    printf("Enter medicine details:\n");
-    printf("Name: ");
-    scanf("%s", newMedicine->name);
-    printf("Manufacturer: ");
-    scanf("%s", newMedicine->manufacturer);
-    printf("Quantity: ");
-    scanf("%d", &newMedicine->quantity);
-    printf("Price: ");
-    scanf("%f", &newMedicine->price);
-
-    newMedicine->next = *medicineList;
-    *medicineList = newMedicine;
-
-    printf("Medicine added to inventory.\n");
-}
-
-void displayMedicines(const struct Medicine *medicineList) {
-    printf("\nMedicine Inventory:\n");
-    while (medicineList != NULL) {
-        printf("Medicine ID: %d\n", medicineList->medicineID);
-        printf("Name: %s\n", medicineList->name);
-        printf("Manufacturer: %s\n", medicineList->manufacturer);
-        printf("Quantity: %d\n", medicineList->quantity);
-        printf("Price: %.2f\n", medicineList->price);
-        printf("\n");
-        medicineList = medicineList->next;
-    }
-}
-void deleteMedicine(struct Medicine **medicineList) {
-    if (*medicineList == NULL) {
-        printf("Inventory is empty. No medicine to delete.\n");
-        return;
-    }
-
-    int medicineID;
-    printf("Enter the ID of the medicine to delete: ");
-    scanf("%d", &medicineID);
-
-    struct Medicine *currentMedicine = *medicineList;
-    struct Medicine *prevMedicine = NULL;
-
-    while (currentMedicine != NULL && currentMedicine->medicineID != medicineID) {
-        prevMedicine = currentMedicine;
-        currentMedicine = currentMedicine->next;
-    }
-
-    if (currentMedicine == NULL) {
-        printf("Medicine with ID %d not found in inventory.\n", medicineID);
-        return;
-    }
-
-    if (prevMedicine == NULL) {
-        // Deleting the first node
-        *medicineList = currentMedicine->next;
-    } else {
-        prevMedicine->next = currentMedicine->next;
-    }
-
-    free(currentMedicine);
-    printf("Medicine with ID %d deleted from inventory.\n", medicineID);
-}
-int validateAdminLogin(struct Admin *admin, const char *enteredUsername, const char *enteredPassword) {
-    if (strcmp(enteredUsername, admin->username) == 0 && strcmp(enteredPassword, admin->password) == 0) {
-        return 1;
-    }
-    return 0;
 }
